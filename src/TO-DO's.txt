@@ -1,0 +1,5 @@
+TO-DO's
+- Musical animation for correct / incorrect answers?
+- Style
+- Table with the highest score??? (I would need for the user to register with a username and connect his score to a database)
+- Make the buttons better
