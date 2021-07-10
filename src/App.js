@@ -1,5 +1,6 @@
 import "./App.css";
 import React from "react";
+import { db } from "./firebase";
 
 //Parent Component
 class Main extends React.Component {
@@ -7,7 +8,7 @@ class Main extends React.Component {
     super(props);
 
     this.state = {
-      response: [],
+      response: [""],
       current_question: {
         question: "Loading...",
         correct_answer: "",
@@ -21,33 +22,93 @@ class Main extends React.Component {
       question_num: 0,
       alive: true,
       result: "",
+      user: "",
+      logged: false,
+      topScores:['']
+      
     };
 
     this.handleClick = this.handleClick.bind(this);
     this.setQuestions = this.setQuestions.bind(this);
     this.resetGame = this.resetGame.bind(this);
+    this.handleUserSubmit = this.handleUserSubmit.bind(this);
+    this.handleUserChange = this.handleUserChange.bind(this);
+    this.sendData = this.sendData.bind(this);
+    this.readData = this.readData.bind(this);
+  }
+
+  //Send data to firebase
+  async sendData() {
+    await db
+      .collection("usuarios")
+      .doc()
+      .set({
+        usuario: this.state.user,
+        score: this.state.question_num - 1,
+      });
+    console.log("The data was sent");
+
+    let data = []
+
+    const snapshot = await db
+    .collection("usuarios")
+    .orderBy("score","desc")
+    .limit(5)
+    .get();
+
+    snapshot.forEach(e=>{
+      data.push(e.data())
+    })
+
+    await this.setState({topScores:data})
+
+  }
+
+  //Read data
+  async readData() {
+    const usersRef = db.collection("usuarios");
+    const snapshot = await usersRef.orderBy("score", "desc").limit(5).get();
+
+     snapshot.forEach((x) => {
+      console.log(x.data().usuario, x.data().score)
+    });
+  }
+
+  //When user clicks play, it logs
+  handleUserSubmit() {
+    this.setState({ logged: true });
+  }
+  //Update the username
+  handleUserChange(e) {
+    this.setState({ user: e.target.value });
   }
 
   //Snippet to scape special characters from JSON
   escapeHtml(unsafe) {
-  return unsafe
-       .replace(/&amp;/g, "&")
-       .replace(/&lt;/g, "<")
-       .replace(/&gt;/g, ">")
-       .replace(/&quot;/g, '"')
-       .replace(/&#039;/g, "'");
-}
+    return unsafe
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      .replace(/&ldquo;/g, '"');
+  }
 
   //Set up the questions
   setQuestions() {
     this.setState((state) => ({
       question_num: state.question_num + 1,
       current_question: {
-        question: this.escapeHtml(state.response[this.state.question_num + 1].question),
-        correct_answer:
-          this.escapeHtml(state.response[this.state.question_num + 1].correct_answer),
+        question: this.escapeHtml(
+          state.response[this.state.question_num + 1].question
+        ),
+        correct_answer: this.escapeHtml(
+          state.response[this.state.question_num + 1].correct_answer
+        ),
         possible_answers: [
-          ...state.response[this.state.question_num + 1].incorrect_answers.map(e=>this.escapeHtml(e)),
+          ...state.response[this.state.question_num + 1].incorrect_answers.map(
+            (e) => this.escapeHtml(e)
+          ),
         ]
           .concat(state.response[this.state.question_num + 1].correct_answer)
           .sort((a, b) => 0.5 - Math.random()),
@@ -72,10 +133,10 @@ class Main extends React.Component {
   //Handle the user choosing an answer
   handleClick(e) {
     if (e.target.value === this.state.current_question.correct_answer) {
-      this.setState((state) => ({ result: "CORRECT" }));
       this.setQuestions();
     } else {
-      this.setState({ result: "WRONG", alive: false });
+      this.sendData();
+      this.setState({ alive: false});
     }
   }
 
@@ -96,6 +157,10 @@ class Main extends React.Component {
       question_num: 0,
       alive: true,
       result: "",
+      user: "",
+      logged: false,
+      topScores:['']
+      
     });
 
     fetch("https://opentdb.com/api.php?amount=50&type=multiple")
@@ -110,7 +175,23 @@ class Main extends React.Component {
       });
   }
 
+  //Render
   render() {
+    if (!this.state.logged) {
+      return (
+        <form>
+          <label for="user">Enter your username:</label>
+          <input
+            onChange={this.handleUserChange}
+            value={this.state.user}
+            type="text"
+            required
+          />
+          <button onClick={this.handleUserSubmit}> PLAY </button>
+        </form>
+      );
+    }
+
     if (this.state.alive) {
       return (
         <div>
@@ -147,10 +228,23 @@ class Main extends React.Component {
         </div>
       );
     } else {
+
+      const leaderBoard = this.state.topScores.map(e=>{
+       return <li>{e.usuario}: {e.score}</li>
+      })
+
       return (
         <div>
           <h1>GAME OVER!!!</h1>
           <h2>Final Score: {this.state.question_num - 1}</h2>
+          <h2>{this.state.current_question.question}</h2>
+          <h3>
+            The correct answer was: {this.state.current_question.correct_answer}
+          </h3>
+
+          <h2>Highest scores: </h2>
+          <ul>{leaderBoard}</ul>
+
           <button onClick={this.resetGame}>Play again</button>
         </div>
       );
