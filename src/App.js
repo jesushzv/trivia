@@ -24,8 +24,7 @@ class Main extends React.Component {
       result: "",
       user: "",
       logged: false,
-      topScores:['']
-      
+      topScores: [""],
     };
 
     this.handleClick = this.handleClick.bind(this);
@@ -34,7 +33,6 @@ class Main extends React.Component {
     this.handleUserSubmit = this.handleUserSubmit.bind(this);
     this.handleUserChange = this.handleUserChange.bind(this);
     this.sendData = this.sendData.bind(this);
-    this.readData = this.readData.bind(this);
   }
 
   //Send data to firebase
@@ -48,30 +46,19 @@ class Main extends React.Component {
       });
     console.log("The data was sent");
 
-    let data = []
+    let data = [];
 
     const snapshot = await db
-    .collection("usuarios")
-    .orderBy("score","desc")
-    .limit(5)
-    .get();
+      .collection("usuarios")
+      .orderBy("score", "desc")
+      .limit(5)
+      .get();
 
-    snapshot.forEach(e=>{
-      data.push(e.data())
-    })
-
-    await this.setState({topScores:data})
-
-  }
-
-  //Read data
-  async readData() {
-    const usersRef = db.collection("usuarios");
-    const snapshot = await usersRef.orderBy("score", "desc").limit(5).get();
-
-     snapshot.forEach((x) => {
-      console.log(x.data().usuario, x.data().score)
+    snapshot.forEach((e) => {
+      data.push(e.data());
     });
+
+    await this.setState({ topScores: data });
   }
 
   //When user clicks play, it logs
@@ -91,7 +78,9 @@ class Main extends React.Component {
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
       .replace(/&#039;/g, "'")
-      .replace(/&ldquo;/g, '"');
+      .replace(/&ldquo;/g, '"')
+      .replace(/&rsquo;/g,"'")
+      .replace(/&Uuml;/g,"Ü");
   }
 
   //Set up the questions
@@ -118,7 +107,7 @@ class Main extends React.Component {
 
   //Load up the questions from the API
   componentDidMount() {
-    fetch("https://opentdb.com/api.php?amount=50&type=multiple")
+    fetch("https://opentdb.com/api.php?amount=50&difficulty=easy&type=multiple")
       .then((response) => {
         return response.json();
       })
@@ -136,7 +125,7 @@ class Main extends React.Component {
       this.setQuestions();
     } else {
       this.sendData();
-      this.setState({ alive: false});
+      this.setState({ alive: false });
     }
   }
 
@@ -159,11 +148,10 @@ class Main extends React.Component {
       result: "",
       user: "",
       logged: false,
-      topScores:['']
-      
+      topScores: [""],
     });
 
-    fetch("https://opentdb.com/api.php?amount=50&type=multiple")
+    fetch("https://opentdb.com/api.php?amount=50&difficulty=easy&type=multiple")
       .then((response) => {
         return response.json();
       })
@@ -179,71 +167,80 @@ class Main extends React.Component {
   render() {
     if (!this.state.logged) {
       return (
-        <form>
-          <label for="user">Enter your username:</label>
-          <input
-            onChange={this.handleUserChange}
-            value={this.state.user}
-            type="text"
-            required
-          />
-          <button onClick={this.handleUserSubmit}> PLAY </button>
-        </form>
+        <div className="main">
+          <form className="user">
+            <label for="user">Enter your username:</label>
+            <input
+              onChange={this.handleUserChange}
+              value={this.state.user}
+              type="text"
+              required
+            />
+            <button onClick={this.handleUserSubmit}> PLAY </button>
+          </form>
+        </div>
       );
     }
 
     if (this.state.alive) {
       return (
-        <div>
-          <h1>{this.state.current_question.question}</h1>
-          <button
-            onClick={this.handleClick}
-            value={this.state.current_question.possible_answers[0]}
-            id="1"
-          >
-            {this.state.current_question.possible_answers[0]}
-          </button>
-          <button
-            onClick={this.handleClick}
-            value={this.state.current_question.possible_answers[1]}
-            id="2"
-          >
-            {this.state.current_question.possible_answers[1]}
-          </button>
-          <button
-            onClick={this.handleClick}
-            value={this.state.current_question.possible_answers[2]}
-            id="3"
-          >
-            {this.state.current_question.possible_answers[2]}
-          </button>
-          <button
-            onClick={this.handleClick}
-            value={this.state.current_question.possible_answers[3]}
-            id="4"
-          >
-            {this.state.current_question.possible_answers[3]}
-          </button>
-          <h2>Score: {this.state.question_num - 1}</h2>
+        <div className="main">
+          <h1 className="question_title">{this.state.current_question.question}</h1>
+
+          <div className="questions">
+            <button
+              onClick={this.handleClick}
+              value={this.state.current_question.possible_answers[0]}
+              id="1"
+            >
+              {this.state.current_question.possible_answers[0]}
+            </button>
+            <button
+              onClick={this.handleClick}
+              value={this.state.current_question.possible_answers[1]}
+              id="2"
+            >
+              {this.state.current_question.possible_answers[1]}
+            </button>
+            <button
+              onClick={this.handleClick}
+              value={this.state.current_question.possible_answers[2]}
+              id="3"
+            >
+              {this.state.current_question.possible_answers[2]}
+            </button>
+            <button
+              onClick={this.handleClick}
+              value={this.state.current_question.possible_answers[3]}
+              id="4"
+            >
+              {this.state.current_question.possible_answers[3]}
+            </button>
+          </div>
+
+          <p className="score">Score: <strong>{this.state.question_num - 1}</strong> </p>
         </div>
       );
     } else {
-
-      const leaderBoard = this.state.topScores.map(e=>{
-       return <li>{e.usuario}: {e.score}</li>
-      })
+      const leaderBoard = this.state.topScores.map((e) => {
+        return (
+          <li>
+            {e.usuario}: <strong>{e.score}</strong> 
+          </li>
+        );
+      });
 
       return (
-        <div>
+        <div className="main end">
           <h1>GAME OVER!!!</h1>
-          <h2>Final Score: {this.state.question_num - 1}</h2>
+          <p>Final Score: <strong>{this.state.question_num - 1}</strong> </p>
           <h2>{this.state.current_question.question}</h2>
-          <h3>
-            The correct answer was: {this.state.current_question.correct_answer}
-          </h3>
+          <p>
+            The correct answer was: <strong>{this.state.current_question.correct_answer}</strong> 
+          </p>
 
           <h2>Highest scores: </h2>
-          <ul>{leaderBoard}</ul>
+          <ul className="leaderBoard">{leaderBoard}</ul>
 
           <button onClick={this.resetGame}>Play again</button>
         </div>
@@ -256,7 +253,7 @@ class Main extends React.Component {
 function App() {
   return (
     <div className="App">
-      <Main />
+      <Main className="main" />
     </div>
   );
 }
