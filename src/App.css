@@ -2,11 +2,7 @@
   display: flex;
   justify-content: center;
   align-content: center;
-  height: 90vh;
-}
-
-ul{
-  list-style: none;
+  height: 100vh;
 }
 
 
@@ -17,6 +13,8 @@ ul{
   justify-content: center;
   align-content: center;
   text-align: center;
+  height: 100%;
+  max-height: 100%;
 }
 
 /* USER SCREEN */
@@ -46,8 +44,9 @@ ul{
 /* QUESTIONS */
 
 .question_title{
-  font-size: 3em;
+  font-size: 5vw;
   text-align: center;
+  max-width: 100%;
 }
 
 .questions{
@@ -58,10 +57,13 @@ ul{
 }
 
 .questions button{
-  font-size: 1.5em;
-  padding: .5em;
+  font-size: 2vw;
+  padding: 1em;
+  height: 6em;
   margin: .25em;
-  min-width: 100%;
+  width: 20%;
+  max-width: 25%;
+
 }
 
 .score{
@@ -74,18 +76,24 @@ ul{
 
 /* ENDGAME */
 
-.end button{
-  font-size: 2em;
-  padding: .5em;
-  margin: 1em;
-}
 
 .end h1{
-  font-size: 3em;
+  font-size: 5vw;
+  margin-top: 2vh;
 }
 
 .end{
-  font-size: 1.25em;
+  font-size: 2vw;
+}
+
+.end .leaderBoard{
+  min-height: 20vh;
+}
+
+.end .leaderBoard button{
+  font-size: 2vw;
+  padding: 1vw;
+  margin: 1.5vw;
 }
 
 

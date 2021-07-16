@@ -222,11 +222,11 @@ class Main extends React.Component {
         </div>
       );
     } else {
-      const leaderBoard = this.state.topScores.map((e) => {
+       const leaderBoard =  this.state.topScores.map((e) => {
         return (
-          <li>
+          <p>
             {e.usuario}: <strong>{e.score}</strong> 
-          </li>
+          </p>
         );
       });
 
@@ -240,9 +240,14 @@ class Main extends React.Component {
           </p>
 
           <h2>Highest scores: </h2>
-          <ul className="leaderBoard">{leaderBoard}</ul>
+          <div className="leaderBoard">{leaderBoard}
+          
 
-          <button onClick={this.resetGame}>Play again</button>
+                    <button onClick={this.resetGame}>Play again</button>
+
+
+          </div>
+
         </div>
       );
     }

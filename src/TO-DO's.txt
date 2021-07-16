@@ -1,7 +1,5 @@
 TO-DO's
 - Musical animation for correct / incorrect answers?
 - Style
-    - On game Style
-    - Game Over style
-    - Make the buttons bigger
+   - Responsive
 - 3 life mode?
