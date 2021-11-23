@@ -1,6 +1,8 @@
 # Trivia
 This is a personal project that I built to learn React.
 
+A live demo can be used [here](https://loving-euclid-5627cd.netlify.app)
+
 ## Description
 I used React to build this project.
 
